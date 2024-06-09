@@ -6,7 +6,7 @@
 </p>
 
 
-WFlib is an open-source library for website fingerprinting researchers, especially for DL-based website fingerprinting attacks.
+WFlib is a Pytorch-based open-source library for website fingerprinting attacks, intended for research purposes only.
 
 We provide a neat code base to evaluate 11 advanced DL-based WF attacks on multiple datasets. This library is partially derived from our ACM CCS 2024 paper. If you find this repo useful, please cite our paper.
 
@@ -20,6 +20,31 @@ We provide a neat code base to evaluate 11 advanced DL-based WF attacks on multi
 ```
 
 ## WFlib Overview
+
+The code library includes 11 DL-based website fingerprinting attacks.
+
+| Attacks | Conference  | Paper | Code |
+|----------|----------|----------|----------|
+| AWF | NDSS 2018 | [Automated Website Fingerprinting through Deep Learning](https://arxiv.org/pdf/1708.06376) | [DLWF](https://github.com/DistriNet/DLWF) |
+| DF | CCS 2018 | [Deep Fingerprinting: Undermining Website Fingerprinting Defenses with Deep Learning](https://dl.acm.org/doi/pdf/10.1145/3243734.3243768) | [df](https://github.com/deep-fingerprinting/df) |
+| Tik-Tok | PETS 2019 | [Tik-Tok: The Utility of Packet Timing in Website Fingerprinting Attacks](https://petsymposium.org/popets/2020/popets-2020-0043.pdf) | [Tik_Tok](https://github.com/msrocean/Tik_Tok) |
+| Var-CNN | PETS 2019 | [Var-CNN: A Data-Efficient Website Fingerprinting Attack Based on Deep Learning](https://arxiv.org/pdf/1802.10215) | [Var-CNN](https://github.com/sanjit-bhat/Var-CNN) |
+| TF | CCS 2019 | [Triplet Fingerprinting: More Practical and Portable Website Fingerprinting with N-shot Learning](https://dl.acm.org/doi/pdf/10.1145/3319535.3354217) | [tf](https://github.com/triplet-fingerprinting/tf) |
+| BAPM | ACSAC 2021 | [BAPM: Block Attention Profiling Model for Multi-tab Website Fingerprinting Attacks on Tor](https://dl.acm.org/doi/pdf/10.1145/3485832.3485891) | None |
+| ARES | S&P 2023 | [Robust Multi-tab Website Fingerprinting Attacks in the Wild](http://www.thucsnet.com/wp-content/papers/xinhao_sp2023.pdf) | [Multitab-WF-Datasets](https://github.com/Xinhao-Deng/Multitab-WF-Datasets) |
+| RF | Security 2023 | [Subverting Website Fingerprinting Defenses with Robust Traffic Representation](https://www.usenix.org/system/files/sec23fall-prepub-621_shen-meng.pdf) | [RF](https://github.com/robust-fingerprinting/RF) |
+| NetCLR | CCS 2023 | [Realistic Website Fingerprinting By Augmenting Network Trace](https://arxiv.org/pdf/2309.10147) | [Realistic-Website-Fingerprinting-By-Augmenting-Network-Traces](https://github.com/SPIN-UMass/Realistic-Website-Fingerprinting-By-Augmenting-Network-Traces) |
+| TMWF | CCS 2023 | [Transformer-based Model for Multi-tab Website Fingerprinting Attack](https://dl.acm.org/doi/abs/10.1145/3576915.3623107) | [TMWF](https://github.com/jzx-bupt/TMWF) |
+| Holmes | CCS 2024 | [Robust and Reliable Early-Stage Website Fingerprinting Attacks via Spatial-Temporal Distribution Analysis](https://github.com/Xinhao-Deng/Website-Fingerprinting-Library) | [WFlib](https://github.com/Xinhao-Deng/Website-Fingerprinting-Library)|
+
+
+We implemented all attacks using the same framework (Pytorch) and a consistent coding style, enabling researchers to evaluate and compare existing attacks easily.
+
+## Usage
+
+TBD
+
+## Datasets
 
 TBD
 
