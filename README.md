@@ -48,8 +48,6 @@ We implemented all attacks using the same framework (Pytorch) and a consistent c
 pip install --user .
 ```
 
-If you modify the core code of WFlib (e.g., code in `./models` or `./tools`), WFlib needs to be reinstalled.
-
 ### Datasets
 
 - Download datasets ([link](https://drive.google.com/file/d/1yJJ7Qyba-9HF7MBgpFrkvfY4_3ZwTvyx/view?usp=sharing)) and place it in the folder `./datasets`
@@ -106,4 +104,4 @@ If you have any questions or suggestions, feel free to contact:
 
 ## Acknowledgements
 
-We would like to thank all the authors of the referenced papers. Special thanks to **Yixiang Zhang** and **Jie Yan** from Tsinghua University for their participation in the code review.
+We would like to thank all the authors of the referenced papers. Special thanks to **Yixiang Zhang** and **Jie Yan** for their participation in the code review.
