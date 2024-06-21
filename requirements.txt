@@ -1,0 +1,8 @@
+tqdm
+pytorch
+pytorch-cuda
+pytorch-metric-learning
+pytorch-mutex
+numpy
+pandas
+scikit-learn

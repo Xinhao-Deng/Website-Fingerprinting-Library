@@ -8,7 +8,7 @@
 
 WFlib is a Pytorch-based open-source library for website fingerprinting attacks, intended for research purposes only.
 
-We provide a neat code base to evaluate 11 advanced DL-based WF attacks on multiple datasets. This library is partially derived from our ACM CCS 2024 paper. If you find this repo useful, please cite our paper.
+We provide a neat code base to evaluate 11 advanced DL-based WF attacks on multiple datasets. This library is derived from our ACM CCS 2024 paper. If you find this repo useful, please cite our paper.
 
 ```bibtex
 @inproceedings{deng2024wflib,
@@ -42,14 +42,68 @@ We implemented all attacks using the same framework (Pytorch) and a consistent c
 
 ## Usage
 
-TBD
+### Install 
 
-## Datasets
+```sh
+pip install --user .
+```
 
-TBD
+If you modify the core code of WFlib (e.g., code in `./models` or `./tools`), WFlib needs to be reinstalled.
 
+### Datasets
+
+- Download datasets ([link](https://drive.google.com/file/d/1yJJ7Qyba-9HF7MBgpFrkvfY4_3ZwTvyx/view?usp=sharing)) and place it in the folder `./datasets`
+
+- Divide the dataset into training, validation, and test sets. 
+For example, you can execute the following command.
+
+```sh
+python exp/dataset_process/dataset_split.py --dataset DF18
+```
+
+### Training \& Evaluation
+
+We provide all experiment scripts for WF attacks on multiple datasets in the folder `./scripts/`. For example, you can reproduce the AWF attack on the DF18 dataset by executing the following command.
+
+```sh
+bash scripts/DF18/AWF.sh
+```
+
+The `./scripts/DF18/AWF.sh` file contains the commands for model training and evaluation.
+
+```sh
+python -u exp/train.py \
+  --dataset DF18 \
+  --model AWF \
+  --gpu 0 \
+  --feature DIR \
+  --seq_len 3000 \
+  --train_epochs 30 \
+  --batch_size 256 \
+  --learning_rate 8e-4 \
+  --optimizer RMSprop \
+  --eval_metrics Accuracy Precision Recall F1-score P@min \
+  --save_metric F1-score \
+  --save_name max_f1
+
+python -u exp/test.py \
+  --dataset DF18 \
+  --model AWF \
+  --gpu 0 \
+  --feature DIR \
+  --seq_len 3000 \
+  --batch_size 256 \
+  --eval_metrics Accuracy Precision Recall F1-score P@min \
+  --save_name max_f1
+```
+
+The meanings of all parameters can be found in the `exp/train.py` and `exp/test.py` files. WFlib supports modifying parameters to easily implement different attacks. Additionally, you can use WFlib to implement combinations of different attacks or perform ablation analysis.
 
 ## Contact
 If you have any questions or suggestions, feel free to contact:
 
 - [Xinhao Deng](https://xinhao-deng.github.io/) (dengxh23@mails.tsinghua.edu.cn)
+
+## Acknowledgements
+
+We would like to thank all the authors of the referenced papers. Special thanks to **Yixiang Zhang** and **Jie Yan** from Tsinghua University for their participation in the code review.
