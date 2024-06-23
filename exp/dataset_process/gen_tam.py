@@ -9,7 +9,7 @@ import random
 import torch
 from tqdm import tqdm
 from multiprocessing import Process
-from tools import evaluator, data_processor
+from WFlib.tools import data_processor
 
 # Set a fixed seed for reproducibility
 fix_seed = 2024

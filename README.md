@@ -64,10 +64,10 @@ python exp/dataset_process/dataset_split.py --dataset DF18
 We provide all experiment scripts for WF attacks on multiple datasets in the folder `./scripts/`. For example, you can reproduce the AWF attack on the DF18 dataset by executing the following command.
 
 ```sh
-bash scripts/DF18/AWF.sh
+bash scripts/AWF.sh
 ```
 
-The `./scripts/DF18/AWF.sh` file contains the commands for model training and evaluation.
+The `./scripts/AWF.sh` file contains the commands for model training and evaluation.
 
 ```sh
 python -u exp/train.py \
