@@ -80,7 +80,7 @@ test_iter = data_processor.load_iter(test_X, test_y, args.batch_size, False, arg
 # Initialize model, optimizer, and loss function
 model = eval(f"models.{args.model}")(num_classes, args.max_num_tabs)
 model.load_state_dict(torch.load(os.path.join(ckp_path, f"{args.save_name}.pth"), map_location="cpu"))
-model = model.cuda()
+model.cuda()
 
 # Evaluation
 model_utils.model_eval(

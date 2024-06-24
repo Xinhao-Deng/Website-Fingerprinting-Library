@@ -48,6 +48,12 @@ We implemented all attacks using the same framework (Pytorch) and a consistent c
 pip install --user .
 ```
 
+**Note**
+
+- Python 3.8 is recommended.
+- Install PyTorch (==2.1.0) according to your operating system and CUDA version ([link](https://pytorch.org/get-started/locally/))
+- Refer to requirements.txt for other required packages.
+
 ### Datasets
 
 - Download datasets ([link](https://drive.google.com/file/d/1yJJ7Qyba-9HF7MBgpFrkvfY4_3ZwTvyx/view?usp=sharing)) and place it in the folder `./datasets`
