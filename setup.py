@@ -19,5 +19,8 @@ setup(
         "numpy",
         "pandas",
         "scikit-learn",
+        "einops",
+        "timm",
+        "pytorch-metric-learning"
     ],
 )

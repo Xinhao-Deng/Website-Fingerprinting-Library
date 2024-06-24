@@ -51,8 +51,7 @@ pip install --user .
 **Note**
 
 - Python 3.8 is recommended.
-- Install PyTorch (==2.1.0) according to your operating system and CUDA version ([link](https://pytorch.org/get-started/locally/))
-- Refer to requirements.txt for other required packages.
+- Install PyTorch (>=2.1.0) according to your operating system and CUDA version ([link](https://pytorch.org/get-started/locally/))
 
 ### Datasets
 

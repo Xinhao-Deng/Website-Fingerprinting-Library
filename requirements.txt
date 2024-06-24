@@ -1,3 +1,0 @@
-einops==0.8.0
-timm==1.0.7
-pytorch-metric-learning==2.5.0
