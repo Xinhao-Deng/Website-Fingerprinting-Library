@@ -19,6 +19,8 @@ We provide a neat code base to evaluate 11 advanced DL-based WF attacks on multi
 }
 ```
 
+We will continue to add new attacks. Contributions via pull requests are welcome and appreciated.
+
 ## WFlib Overview
 
 The code library includes 11 DL-based website fingerprinting attacks.
