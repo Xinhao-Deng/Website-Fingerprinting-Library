@@ -46,7 +46,7 @@ parser.add_argument("--augmentation_ratio", type=int, default=0, help="How many 
 parser.add_argument("--augmentation_type", type=str, default="offline", help="Type of data augmentation")
 parser.add_argument("--augmentation_method", type=str, default="NetAug", help="Method of data augmentation")
 
-# Output parameters
+# Output
 parser.add_argument('--eval_metrics', nargs='+', required=True, type=str, 
                     help="Evaluation metrics, options=[Accuracy, Precision, Recall, F1-score, P@min, r-Precision]")
 parser.add_argument("--save_metric", type=str, default="F1-score", 
@@ -58,7 +58,6 @@ parser.add_argument("--save_name", type=str, default="base", help="Name of the m
 # Parse arguments
 args = parser.parse_args()
 
-# Ensure the specified device is available
 if args.device.startswith("cuda"):
     assert torch.cuda.is_available(), f"The specified device {args.device} does not exist"
 device = torch.device(args.device)
@@ -92,9 +91,35 @@ valid_iter = data_processor.load_iter(valid_X, valid_y, args.batch_size, False, 
 # Initialize model, optimizer, and loss function
 model = eval(f"models.{args.model}")(num_classes, args.max_num_tabs)
 optimizer = eval(f"torch.optim.{args.optimizer}")(model.parameters(), lr=args.learning_rate)
-model.to(device)
 
-# Train the model
+if args.model == "NetCLR": # Pre-training for NetCLR
+    pretrain_model = eval(f"models.{args.model}")(num_classes, args.max_num_tabs)
+    pretrain_model.update_fc(out_dim=128)
+    pretrain_model.cuda()
+    random_X = train_X[np.random.choice(range(len(train_X)), size=1000, replace=False)]
+    augmentor = model_utils.build_augmentor(random_X)
+    pretrain_dataset = netclr_pretrain.PreTrainData(train_X.numpy().squeeze(1), train_y.numpy(), augmentor, 2)
+    pretrain_iter = torch.utils.data.DataLoader(pretrain_dataset, args.batch_size, shuffle=True, drop_last=True, num_workers=args.num_workers)
+    pretrain_file = os.path.join(ckp_path, f"pretrain.pth")
+    model_utils.model_pretrian(
+        pretrain_model,
+        optimizer,
+        pretrain_iter,
+        100,
+        pretrain_file,
+        args.batch_size
+    )
+
+    checkpoint = torch.load(pretrain_file)
+    for k in list(checkpoint.keys()):
+        if k.startswith('backbone.'):
+            if k.startswith('backbone') and not k.startswith('backbone.fc'):
+                checkpoint[k[len("backbone."):]] = checkpoint[k]
+        del checkpoint[k]
+    log = model.load_state_dict(checkpoint, strict=False)
+    train_iter = valid_iter
+
+model.cuda()
 model_utils.model_train(
     model, 
     optimizer, 
@@ -105,6 +130,5 @@ model_utils.model_train(
     args.eval_metrics, 
     args.train_epochs,
     os.path.join(ckp_path, f"{args.save_name}.pth"),
-    num_classes,
-    device
+    num_classes
 )

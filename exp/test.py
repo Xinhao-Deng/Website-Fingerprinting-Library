@@ -18,7 +18,7 @@ np.random.seed(fix_seed)
 parser = argparse.ArgumentParser(description="WFlib")
 parser.add_argument("--dataset", type=str, required=True, default="DF18", help="Dataset name")
 parser.add_argument("--model", type=str, required=True, default="DF", help="Model name")
-parser.add_argument("--gpu", type=int, required=True, default=0, help="GPU id")
+parser.add_argument("--device", type=str, default="cpu", help="Device, options=[cpu, cuda, cuda:x]")
 
 # Threat model parameters
 parser.add_argument("--max_num_tabs", type=int, default=1, 
@@ -48,8 +48,10 @@ parser.add_argument("--result_file", type=str, default="result", help="File to s
 # Parse arguments
 args = parser.parse_args()
 
-# Set the GPU to be used
-os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+# Ensure the specified device is available
+if args.device.startswith("cuda"):
+    assert torch.cuda.is_available(), f"The specified device {args.device} does not exist"
+device = torch.device(args.device)
 
 # Define paths for dataset, logs, and checkpoints
 in_path = os.path.join("./datasets", args.dataset)
@@ -80,7 +82,7 @@ test_iter = data_processor.load_iter(test_X, test_y, args.batch_size, False, arg
 # Initialize model, optimizer, and loss function
 model = eval(f"models.{args.model}")(num_classes, args.max_num_tabs)
 model.load_state_dict(torch.load(os.path.join(ckp_path, f"{args.save_name}.pth"), map_location="cpu"))
-model.cuda()
+model.to(device)
 
 # Evaluation
 model_utils.model_eval(
@@ -90,5 +92,6 @@ model_utils.model_eval(
     args.eval_method,
     args.eval_metrics, 
     out_file,
-    num_classes
+    num_classes,
+    device
 )

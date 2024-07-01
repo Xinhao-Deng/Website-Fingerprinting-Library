@@ -1,14 +1,14 @@
 for filename in train valid test
 do 
-    python -u exp/dataset_process/gen_tam.py \
+    python -u exp/dataset_process/gen_taf.py \
       --dataset DF18 \
-      --seq_len 5000 \
+      --seq_len 10000 \
       --in_file ${filename}
 done
 
 python -u exp/train.py \
   --dataset DF18 \
-  --model RF \
+  --model Holmes \
   --device cuda:0 \
   --train_file tam_train \
   --valid_file tam_valid \
@@ -24,7 +24,7 @@ python -u exp/train.py \
 
 python -u exp/test.py \
   --dataset DF18 \
-  --model RF \
+  --model Holmes \
   --device cuda:0 \
   --test_file tam_test \
   --feature TAM \

@@ -6,8 +6,6 @@ class AWF(nn.Module):
     def __init__(self, num_classes=100, num_tab=1):
         super(AWF, self).__init__()
         
-        
-
         # Define the feature extraction part of the network using a sequential container
         self.feature_extraction = nn.Sequential(
             nn.Dropout(p=0.25),  # Dropout layer with a 25% dropout rate for regularization

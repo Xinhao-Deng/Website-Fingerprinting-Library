@@ -1,7 +1,7 @@
 python -u exp/train.py \
   --dataset DF18 \
   --model BAPM \
-  --gpu 4 \
+  --device cuda:4 \
   --feature DIR \
   --seq_len 8500 \
   --train_epochs 30 \
@@ -15,7 +15,7 @@ python -u exp/train.py \
 python -u exp/test.py \
   --dataset DF18 \
   --model BAPM \
-  --gpu 4 \
+  --device cuda:4 \
   --feature DIR \
   --seq_len 8500 \
   --batch_size 256 \

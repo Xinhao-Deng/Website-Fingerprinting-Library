@@ -1,7 +1,7 @@
 python -u exp/train.py \
   --dataset DF18 \
   --model TikTok \
-  --gpu 2 \
+  --device cuda:2 \
   --feature DT \
   --seq_len 5000 \
   --train_epochs 30 \
@@ -15,7 +15,7 @@ python -u exp/train.py \
 python -u exp/test.py \
   --dataset DF18 \
   --model TikTok \
-  --gpu 2 \
+  --device cuda:2 \
   --feature DT \
   --seq_len 5000 \
   --batch_size 256 \

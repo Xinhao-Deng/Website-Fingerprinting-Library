@@ -1,7 +1,7 @@
 python -u exp/train.py \
   --dataset DF18 \
   --model ARES \
-  --gpu 7 \
+  --device cuda:7 \
   --feature DIR \
   --seq_len 10000 \
   --train_epochs 30 \
@@ -15,7 +15,7 @@ python -u exp/train.py \
 python -u exp/test.py \
   --dataset DF18 \
   --model ARES \
-  --gpu 7 \
+  --device cuda:7 \
   --feature DIR \
   --seq_len 10000 \
   --batch_size 256 \

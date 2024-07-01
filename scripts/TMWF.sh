@@ -1,7 +1,7 @@
 python -u exp/train.py \
   --dataset DF18 \
   --model TMWF \
-  --gpu 6 \
+  --device cuda:6 \
   --feature DIR \
   --seq_len 30720 \
   --train_epochs 30 \
@@ -15,7 +15,7 @@ python -u exp/train.py \
 python -u exp/test.py \
   --dataset DF18 \
   --model TMWF \
-  --gpu 6 \
+  --device cuda:6 \
   --feature DIR \
   --seq_len 30720 \
   --batch_size 256 \

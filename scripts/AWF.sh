@@ -1,7 +1,7 @@
 python -u exp/train.py \
   --dataset DF18 \
   --model AWF \
-  --gpu 0 \
+  --device cuda:0 \
   --feature DIR \
   --seq_len 3000 \
   --train_epochs 30 \
@@ -15,7 +15,7 @@ python -u exp/train.py \
 python -u exp/test.py \
   --dataset DF18 \
   --model AWF \
-  --gpu 0 \
+  --device cuda:0 \
   --feature DIR \
   --seq_len 3000 \
   --batch_size 256 \

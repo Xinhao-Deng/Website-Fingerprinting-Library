@@ -3,28 +3,51 @@ import math
 import torch
 import numpy as np
 
-
 class RF(nn.Module):
-
     def __init__(self, num_classes=100, num_tab=1):
+        """
+        Initialize the RF model.
+
+        Parameters:
+        num_classes (int): Number of output classes.
+        num_tab (int): Number of tabs (not used in this model).
+        """
         super(RF, self).__init__()
         
+        # Create feature extraction layers
         features = make_layers([128, 128, 'M', 256, 256, 'M', 512] + [num_classes])
-        init_weights=True
+        init_weights = True
         self.first_layer_in_channel = 1
         self.first_layer_out_channel = 32
+        
+        # Create the initial convolutional layers
         self.first_layer = make_first_layers()
         self.features = features
         self.class_num = num_classes
+        
+        # Adaptive average pooling layer for classification
         self.classifier = nn.AdaptiveAvgPool1d(1)
+        
+        # Fully connected layer to project to embedding space
         self.to_emb = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_features=num_classes*65, out_features=128),
+            nn.Linear(in_features=num_classes * 65, out_features=128),
         )
+        
+        # Initialize weights
         if init_weights:
             self._initialize_weights()
 
     def forward(self, x):
+        """
+        Forward pass of the model.
+
+        Parameters:
+        x (Tensor): Input tensor.
+
+        Returns:
+        Tensor: Output tensor after passing through the network.
+        """
         x = self.first_layer(x)
         x = x.view(x.size(0), self.first_layer_out_channel, -1)
         x = self.features(x)
@@ -33,6 +56,9 @@ class RF(nn.Module):
         return x
 
     def _initialize_weights(self):
+        """
+        Initialize weights for the network layers.
+        """
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
@@ -46,11 +72,20 @@ class RF(nn.Module):
                 m.weight.data.normal_(0, 0.01)
                 m.bias.data.zero_()
 
-
 def make_layers(cfg, in_channels=32):
+    """
+    Create a sequence of convolutional and pooling layers.
+
+    Parameters:
+    cfg (list): Configuration list specifying the layers.
+    in_channels (int): Number of input channels.
+
+    Returns:
+    nn.Sequential: Sequential container with the layers.
+    """
     layers = []
 
-    for i, v in enumerate(cfg):
+    for v in cfg:
         if v == 'M':
             layers += [nn.MaxPool1d(3), nn.Dropout(0.3)]
         else:
@@ -60,8 +95,17 @@ def make_layers(cfg, in_channels=32):
 
     return nn.Sequential(*layers)
 
-
 def make_first_layers(in_channels=1, out_channel=32):
+    """
+    Create the initial convolutional layers.
+
+    Parameters:
+    in_channels (int): Number of input channels.
+    out_channel (int): Number of output channels.
+
+    Returns:
+    nn.Sequential: Sequential container with the initial layers.
+    """
     layers = []
     conv2d1 = nn.Conv2d(in_channels, out_channel, kernel_size=(3, 6), stride=1, padding=(1, 1))
     layers += [conv2d1, nn.BatchNorm2d(out_channel, eps=1e-05, momentum=0.1, affine=True), nn.ReLU()]
@@ -87,4 +131,3 @@ if __name__ == '__main__':
     x = torch.tensor(x, dtype=torch.float32)
     out = net(x)
     print("out:", out.shape)
-

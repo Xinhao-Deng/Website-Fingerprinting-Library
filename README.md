@@ -50,8 +50,7 @@ pip install --user .
 
 **Note**
 
-- Python 3.8 is recommended.
-- Install PyTorch (>=2.1.0) according to your operating system and CUDA version ([link](https://pytorch.org/get-started/locally/))
+- Python 3.8 is required.
 
 ### Datasets
 
@@ -66,7 +65,7 @@ python exp/dataset_process/dataset_split.py --dataset DF18
 
 ### Training \& Evaluation
 
-We provide all experiment scripts for WF attacks on multiple datasets in the folder `./scripts/`. For example, you can reproduce the AWF attack on the DF18 dataset by executing the following command.
+We provide all experiment scripts for WF attacks in the folder `./scripts/`. For example, you can reproduce the AWF attack on the DF18 dataset by executing the following command.
 
 ```sh
 bash scripts/AWF.sh
@@ -100,7 +99,7 @@ python -u exp/test.py \
   --save_name max_f1
 ```
 
-The meanings of all parameters can be found in the `exp/train.py` and `exp/test.py` files. WFlib supports modifying parameters to easily implement different attacks. Additionally, you can use WFlib to implement combinations of different attacks or perform ablation analysis.
+The meanings of all parameters can be found in the `exp/train.py` and `exp/test.py` files. WFlib supports modifying parameters to easily implement different attacks. Moreover, you can use WFlib to implement combinations of different attacks or perform ablation analysis.
 
 ## Contact
 If you have any questions or suggestions, feel free to contact:

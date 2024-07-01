@@ -26,8 +26,6 @@ class DF(nn.Module):
     def __init__(self, num_classes, num_tab=1):
         super(DF, self).__init__()
         
-        
-
         # Configuration parameters for the convolutional blocks
         filter_num = [32, 64, 128, 256]  # Number of filters for each block
         kernel_size = 8  # Kernel size for convolutional layers
