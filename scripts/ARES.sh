@@ -1,5 +1,7 @@
+dataset=DF18
+
 python -u exp/train.py \
-  --dataset DF18 \
+  --dataset ${dataset} \
   --model ARES \
   --device cuda:7 \
   --feature DIR \
@@ -8,12 +10,12 @@ python -u exp/train.py \
   --batch_size 64 \
   --learning_rate 0.0014 \
   --optimizer AdamW \
-  --eval_metrics Accuracy Precision Recall F1-score P@min \
+  --eval_metrics Accuracy Precision Recall F1-score \
   --save_metric F1-score \
   --save_name max_f1
 
 python -u exp/test.py \
-  --dataset DF18 \
+  --dataset ${dataset} \
   --model ARES \
   --device cuda:7 \
   --feature DIR \

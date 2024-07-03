@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import time
 import torch
@@ -24,7 +25,7 @@ parser.add_argument("--device", type=str, default="cpu", help="Device, options=[
 parser.add_argument("--max_num_tabs", type=int, default=1, 
                     help="Maximum number of tabs opened by users while browsing")
 parser.add_argument("--scenario", type=str, default="closed-world", 
-                    help="Attack scenario, options=[closed-world, open-world]")
+                    help="Attack scenario, options=[closed_world, open_world]")
 
 # Input parameters
 parser.add_argument("--valid_file", type=str, default="valid", help="Valid file")
@@ -60,7 +61,11 @@ if not os.path.exists(in_path):
 log_path = os.path.join(args.log_path, args.dataset, args.model)
 ckp_path = os.path.join(args.checkpoints, args.dataset, args.model)
 os.makedirs(log_path, exist_ok=True)
-out_file = os.path.join(log_path, f"{args.result_file}.json")
+out_file = os.path.join(log_path, f"{args.scenario}_{args.result_file}.json")
+
+if os.path.exists(out_file):
+    print(f"{out_file} has been generated.")
+    sys.exit(0)
 
 # Load training and validation data
 valid_X, valid_y = data_processor.load_data(os.path.join(in_path, f"{args.valid_file}.npz"), args.feature, args.seq_len)
@@ -93,5 +98,7 @@ model_utils.model_eval(
     args.eval_metrics, 
     out_file,
     num_classes,
-    device
+    device,
+    ckp_path,
+    args.scenario
 )

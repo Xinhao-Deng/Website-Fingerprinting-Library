@@ -160,7 +160,8 @@ cython_debug/
 #.idea/
 
 datasets
-scripts/GTT23
+scripts/*
+!scripts/*.sh
 checkpoints
 logs
 debug.sh

@@ -1,5 +1,7 @@
+dataset=DF18
+
 python -u exp/train.py \
-  --dataset DF18 \
+  --dataset ${dataset} \
   --model TF \
   --device cuda:1 \
   --feature DIR \
@@ -9,12 +11,12 @@ python -u exp/train.py \
   --learning_rate 1e-4 \
   --loss TripletMarginLoss \
   --optimizer Adam \
-  --eval_metrics Accuracy Precision Recall F1-score P@min \
+  --eval_metrics Accuracy Precision Recall F1-score \
   --save_metric F1-score \
   --save_name max_f1
 
 python -u exp/test.py \
-  --dataset DF18 \
+  --dataset ${dataset} \
   --model TF \
   --device cuda:1 \
   --feature DIR \

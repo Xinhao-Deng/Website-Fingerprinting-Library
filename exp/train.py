@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import time
 import torch
@@ -41,11 +42,6 @@ parser.add_argument("--loss", type=str, default="CrossEntropyLoss", help="Loss f
 parser.add_argument("--lradj", type=str, default="None", 
                     help="adjust learning rate, option=[None, StepLR]")
 
-# Data augmentation parameters
-parser.add_argument("--augmentation_ratio", type=int, default=0, help="How many times to augment")
-parser.add_argument("--augmentation_type", type=str, default="offline", help="Type of data augmentation")
-parser.add_argument("--augmentation_method", type=str, default="NetAug", help="Method of data augmentation")
-
 # Output parameters
 parser.add_argument('--eval_metrics', nargs='+', required=True, type=str, 
                     help="Evaluation metrics, options=[Accuracy, Precision, Recall, F1-score, P@min, r-Precision]")
@@ -72,6 +68,11 @@ ckp_path = os.path.join(args.checkpoints, args.dataset, args.model)
 os.makedirs(log_path, exist_ok=True)
 os.makedirs(ckp_path, exist_ok=True)
 
+out_file = os.path.join(ckp_path, f"{args.save_name}.pth")
+if os.path.exists(out_file):
+    print(f"{out_file} has been generated.")
+    sys.exit(1)
+
 # Load training and validation data
 train_X, train_y = data_processor.load_data(os.path.join(in_path, f"{args.train_file}.npz"), args.feature, args.seq_len)
 valid_X, valid_y = data_processor.load_data(os.path.join(in_path, f"{args.valid_file}.npz"), args.feature, args.seq_len)
@@ -94,6 +95,9 @@ model = eval(f"models.{args.model}")(num_classes, args.max_num_tabs)
 optimizer = eval(f"torch.optim.{args.optimizer}")(model.parameters(), lr=args.learning_rate)
 model.to(device)
 
+out_file = os.path.join(ckp_path, f"{args.save_name}.pth")
+
+
 # Train the model
 model_utils.model_train(
     model, 
@@ -104,7 +108,7 @@ model_utils.model_train(
     args.save_metric, 
     args.eval_metrics, 
     args.train_epochs,
-    os.path.join(ckp_path, f"{args.save_name}.pth"),
+    out_file,
     num_classes,
     device
 )

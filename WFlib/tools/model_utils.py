@@ -4,8 +4,10 @@ import os
 import json
 import torch.nn.functional as F
 from pytorch_metric_learning import miners, losses
+from sklearn.metrics.pairwise import cosine_similarity
 from .evaluator import measurement
 from .netclr_augmentor import Augmentor
+
 
 def knn_monitor(net, device, memory_data_loader, test_data_loader, num_classes, k=200, t=0.1):
     """
@@ -163,6 +165,8 @@ def model_train(
     elif loss_name == "TripletMarginLoss":
         criterion = losses.TripletMarginLoss(margin=0.1)
         miner = miners.TripletMarginMiner(margin=0.1, type_of_triplets="semihard")
+    elif loss_name == "SupConLoss":
+        criterion = losses.SupConLoss(temperature=0.1)
     else:
         raise ValueError(f"Loss function {loss_name} is not matched.")
     
@@ -182,6 +186,8 @@ def model_train(
             if loss_name == "TripletMarginLoss":
                 hard_pairs = miner(outs, cur_y)
                 loss = criterion(outs, cur_y, hard_pairs)
+            elif loss_name == "SupConLoss":
+                loss = criterion(outs, cur_y)
             else:
                 loss = criterion(outs, cur_y)
             
@@ -193,7 +199,7 @@ def model_train(
         train_loss = round(sum_loss / sum_count, 3)
         print(f"epoch {epoch}: train_loss = {train_loss}")
 
-        if loss_name == "TripletMarginLoss":
+        if loss_name in ["TripletMarginLoss", "SupConLoss"]:
             valid_true, valid_pred = knn_monitor(model, device, train_iter, valid_iter, num_classes, 10)
         else:
             with torch.no_grad():
@@ -220,7 +226,7 @@ def model_train(
             metric_best_value = valid_result[save_metric]
             torch.save(model.state_dict(), out_file)
 
-def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file, num_classes, device):
+def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file, num_classes, device, ckp_path, scenario):
     """
     Evaluate the model.
 
@@ -251,8 +257,37 @@ def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file
             y_true = np.concatenate(y_true).flatten()
     elif eval_method == "kNN":
         y_true, y_pred = knn_monitor(model, device, valid_iter, test_iter, num_classes, 10)
-    elif eval_method == "holmes":
-        pass
+    elif eval_method == "Holmes":
+        open_threshold = 1e-3
+        spatial_dist_file = os.path.join(ckp_path, "spatial_distribution.npz")
+        assert os.path.exists(spatial_dist_file), f"{spatial_dist_file} does not exist, please run spatial_analysis.py first"
+        spatial_data = np.load(spatial_dist_file)
+        webs_centroid = spatial_data["centroid"]
+        webs_radius = spatial_data["radius"]
+
+        with torch.no_grad():
+            model.eval()
+            y_pred = []
+            y_true = []
+
+            for index, cur_data in enumerate(test_iter):
+                cur_X, cur_y = cur_data[0].to(device), cur_data[1].to(device)
+                embs = model(cur_X).cpu().numpy()
+                cur_y = cur_y.cpu().numpy()
+
+                all_sims = 1 - cosine_similarity(embs, webs_centroid)
+                all_sims -= webs_radius
+                outs = np.argmin(all_sims, axis=1)
+
+                if scenario == "open_world":
+                    outs_d = np.min(all_sims, axis=1)
+                    open_indices = np.where(outs_d > open_threshold)[0]
+                    outs[open_indices] = num_classes - 1
+
+                y_pred.append(outs)
+                y_true.append(cur_y)
+            y_pred = np.concatenate(y_pred).flatten()
+            y_true = np.concatenate(y_true).flatten()
     else:
         raise ValueError(f"Evaluation method {eval_method} is not matched.")
     

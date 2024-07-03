@@ -21,6 +21,7 @@ setup(
         "scikit-learn",
         "einops",
         "timm",
-        "pytorch-metric-learning"
+        "pytorch-metric-learning",
+        "captum"
     ],
 )

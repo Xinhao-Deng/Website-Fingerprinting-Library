@@ -8,3 +8,4 @@ from .TikTok import TikTok
 from .TMWF import TMWF
 from .VarCNN import VarCNN
 from .NetCLR import NetCLR
+from .Holmes import Holmes

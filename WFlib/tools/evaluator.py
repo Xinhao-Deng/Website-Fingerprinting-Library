@@ -26,7 +26,7 @@ def measurement(y_true, y_pred, eval_metrics):
         elif eval_metric == "F1-score":
             results[eval_metric] = round(f1_score(y_true, y_pred, average="macro") * 100, 2)
         elif eval_metric == "P@min":
-            results[eval_metric] = np.min(precision_score(y_true, y_pred, average=None))
+            results[eval_metric] = round(np.min(precision_score(y_true, y_pred, average=None)) * 100, 2)
         elif eval_metric == "r-Precision":
             results[eval_metric] = cal_r_precision(y_true, y_pred)
         else:
@@ -77,3 +77,9 @@ def cal_r_precision(y_true, y_pred, base_r=20):
         res += web2tp[web] / denominator
     res /= open_class
     return res
+
+def median_absolute_deviation(data):
+    median = np.median(data)
+    deviations = np.abs(data - median)
+    mad = np.median(deviations)
+    return mad
