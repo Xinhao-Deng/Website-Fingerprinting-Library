@@ -88,43 +88,6 @@ def load_iter(X, y, batch_size, is_train=True, num_workers=8):
     dataset = torch.utils.data.TensorDataset(X, y)
     return torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=is_train, drop_last=is_train, num_workers=num_workers)
 
-def extract_TAM(sequences):
-    """
-    Extract the Traffic Analysis Matrix (TAM) from sequences.
-
-    Parameters:
-    sequences (ndarray): Input sequences.
-
-    Returns:
-    ndarray: Extracted TAM features.
-    """
-    maximum_load_time = 80  # Maximum load time for packets
-    max_matrix_len = 1800  # Maximum length of the matrix
-    matrix = []
-    for idx in tqdm(range(sequences.shape[0])):
-        cur_X = sequences[idx]
-        feature = np.zeros((2, max_matrix_len))  # Initialize feature matrix
-        for pack in cur_X:
-            if pack == 0:
-                break  # End of sequence
-            elif pack > 0:
-                if pack >= maximum_load_time:
-                    feature[0, -1] += 1  # Assign to the last bin if it exceeds maximum load time
-                else:
-                    idx = int(pack * (max_matrix_len - 1) / maximum_load_time)
-                    feature[0, idx] += 1
-            else:
-                pack = np.abs(pack)
-                if pack >= maximum_load_time:
-                    feature[1, -1] += 1  # Assign to the last bin if it exceeds maximum load time
-                else:
-                    idx = int(pack * (max_matrix_len - 1) / maximum_load_time)
-                    feature[1, idx] += 1
-        matrix.append(feature)
-
-    matrix = np.array(matrix)
-    return matrix
-
 def extract_temporal_feature(X, feat_length=1000):
     abs_X = np.absolute(X)
     new_X = []
@@ -222,9 +185,9 @@ def extract_TAF(sequences, num_workers=30):
     max_len = 2000
     sequences *= 1000
     num_sequences = sequences.shape[0]
-    TAF = np.zeros((sequences.shape[0], 3, 2, max_len))
+    TAF = np.zeros((num_sequences, 3, 2, max_len))
 
-    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+    with ProcessPoolExecutor(max_workers=min(num_workers, num_sequences)) as executor:
         futures = [executor.submit(process_TAF, index, sequences[index], interval, max_len) for index in range(num_sequences)]
         with tqdm(total=num_sequences) as pbar:
             for future in as_completed(futures):
@@ -233,3 +196,49 @@ def extract_TAF(sequences, num_workers=30):
                 pbar.update(1)
 
     return TAF
+
+def process_TAM(index, sequence, maximum_load_time, max_matrix_len):
+    feature = np.zeros((2, max_matrix_len))  # Initialize feature matrix
+
+    for pack in sequence:
+        if pack == 0:
+            break  # End of sequence
+        elif pack > 0:
+            if pack >= maximum_load_time:
+                feature[0, -1] += 1  # Assign to the last bin if it exceeds maximum load time
+            else:
+                idx = int(pack * (max_matrix_len - 1) / maximum_load_time)
+                feature[0, idx] += 1
+        else:
+            pack = np.abs(pack)
+            if pack >= maximum_load_time:
+                feature[1, -1] += 1  # Assign to the last bin if it exceeds maximum load time
+            else:
+                idx = int(pack * (max_matrix_len - 1) / maximum_load_time)
+                feature[1, idx] += 1
+    return index, feature
+
+def extract_TAM(sequences, num_workers=30):
+    """
+    Extract the Traffic Analysis Matrix (TAM) from sequences.
+
+    Parameters:
+    sequences (ndarray): Input sequences.
+
+    Returns:
+    ndarray: Extracted TAM features.
+    """
+    maximum_load_time = 80  # Maximum load time for packets
+    max_matrix_len = 1800  # Maximum length of the matrix
+    num_sequences = sequences.shape[0]
+    TAM = np.zeros((num_sequences, 2, max_matrix_len))
+
+    with ProcessPoolExecutor(max_workers=min(num_workers, num_sequences)) as executor:
+        futures = [executor.submit(process_TAM, index, sequences[index], maximum_load_time, max_matrix_len) for index in range(num_sequences)]
+        with tqdm(total=num_sequences) as pbar:
+            for future in as_completed(futures):
+                index, result = future.result()
+                TAM[index] = result
+                pbar.update(1)
+
+    return TAM
