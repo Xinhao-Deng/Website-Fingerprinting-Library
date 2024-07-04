@@ -68,6 +68,7 @@ if os.path.exists(out_file):
     sys.exit(0)
 
 # Load training and validation data
+print(f"loading test file: ", os.path.join(in_path, f"{args.test_file}.npz"))
 valid_X, valid_y = data_processor.load_data(os.path.join(in_path, f"{args.valid_file}.npz"), args.feature, args.seq_len)
 test_X, test_y = data_processor.load_data(os.path.join(in_path, f"{args.test_file}.npz"), args.feature, args.seq_len)
 num_classes = len(np.unique(test_y))
