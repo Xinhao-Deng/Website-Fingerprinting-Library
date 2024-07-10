@@ -76,24 +76,26 @@ bash scripts/AWF.sh
 The `./scripts/AWF.sh` file contains the commands for model training and evaluation.
 
 ```sh
+dataset=DF18
+
 python -u exp/train.py \
-  --dataset DF18 \
+  --dataset ${dataset} \
   --model AWF \
-  --gpu 0 \
+  --device cuda:0 \
   --feature DIR \
   --seq_len 3000 \
   --train_epochs 30 \
   --batch_size 256 \
   --learning_rate 8e-4 \
   --optimizer RMSprop \
-  --eval_metrics Accuracy Precision Recall F1-score P@min \
+  --eval_metrics Accuracy Precision Recall F1-score \
   --save_metric F1-score \
   --save_name max_f1
 
 python -u exp/test.py \
-  --dataset DF18 \
+  --dataset ${dataset} \
   --model AWF \
-  --gpu 0 \
+  --device cuda:0 \
   --feature DIR \
   --seq_len 3000 \
   --batch_size 256 \
