@@ -29,7 +29,7 @@ for p in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
     out_file = os.path.join(in_path, f"test_p{p}.npz")
     if os.path.exists(out_file):
         continue
-    print(f"Generating the top {p}% of traffic")
+    print(f"Generating the page loaded {p}% of traffic")
     cur_X = []
     cur_y = []
     abs_X = np.absolute(X)

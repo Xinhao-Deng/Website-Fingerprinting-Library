@@ -28,7 +28,7 @@ def measurement(y_true, y_pred, eval_metrics):
         elif eval_metric == "P@min":
             results[eval_metric] = round(np.min(precision_score(y_true, y_pred, average=None)) * 100, 2)
         elif eval_metric == "r-Precision":
-            results[eval_metric] = cal_r_precision(y_true, y_pred)
+            results[eval_metric] = round(cal_r_precision(y_true, y_pred)*100, 2)
         else:
             raise ValueError(f"Metric {eval_metric} is not matched.")
     return results

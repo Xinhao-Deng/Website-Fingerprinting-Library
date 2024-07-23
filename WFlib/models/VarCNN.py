@@ -115,16 +115,3 @@ class VarCNN(nn.Module):
         x = self.classifier(x)
         return x
 
-if __name__ == '__main__':
-    # Instantiate the VarCNN with the specified number of classes
-    model = VarCNN(100)
-    # Calculate and print the total number of parameters in the model
-    total_params = sum(p.numel() for p in model.parameters()) / 1e6
-    print(f'=> model parameters: {total_params:.2f}M')
-    # Create a random input tensor
-    X = np.random.rand(10, 2, 5000)
-    X = torch.tensor(X, dtype=torch.float32)
-    # Pass the input through the model
-    out = model(X)
-    # Print the shape of the output
-    print("out:", out.shape)

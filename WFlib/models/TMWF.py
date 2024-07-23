@@ -449,10 +449,3 @@ class TMWF(nn.Module):
         logits = self.fc(o)
 
         return logits.squeeze()
-
-if __name__ == '__main__':
-    net = TMWF(num_classes=100).cuda()
-    x = np.random.rand(32, 1, 30720)
-    x = torch.tensor(x, dtype=torch.float32).cuda()
-    out = net(x)
-    print(f"in:{x.shape} --> out:{out.shape}")

@@ -8,6 +8,8 @@ import argparse
 import numpy as np
 from WFlib import models
 from WFlib.tools import data_processor, model_utils
+import warnings
+warnings.filterwarnings("ignore")
 
 # Set a fixed seed for reproducibility
 fix_seed = 2024
@@ -25,7 +27,7 @@ parser.add_argument("--device", type=str, default="cpu", help="Device, options=[
 parser.add_argument("--max_num_tabs", type=int, default=1, 
                     help="Maximum number of tabs opened by users while browsing")
 parser.add_argument("--scenario", type=str, default="closed-world", 
-                    help="Attack scenario, options=[closed_world, open_world]")
+                    help="Attack scenario, options=[closed-world, open-world]")
 
 # Input parameters
 parser.add_argument("--valid_file", type=str, default="valid", help="Valid file")

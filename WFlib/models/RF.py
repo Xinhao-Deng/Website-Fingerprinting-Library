@@ -124,10 +124,3 @@ def make_first_layers(in_channels=1, out_channel=32):
     layers += [nn.MaxPool2d((2, 2)), nn.Dropout(0.1)]
 
     return nn.Sequential(*layers)
-
-if __name__ == '__main__':
-    net = RF(100)
-    x = np.random.rand(128, 1, 2, 1800)
-    x = torch.tensor(x, dtype=torch.float32)
-    out = net(x)
-    print("out:", out.shape)

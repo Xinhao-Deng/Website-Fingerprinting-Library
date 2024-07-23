@@ -1,4 +1,3 @@
-# python exp/dataset_process/dataset_split.py --dataset DF18
 import numpy as np
 import os
 import random
@@ -21,6 +20,7 @@ dataset_path = os.path.join("./datasets", args.dataset)
 os.makedirs(dataset_path, exist_ok=True)
 
 # Load dataset from the specified .npz file
+print("loading...", infile)
 data = np.load(infile)
 X = data["X"]
 y = data["y"]

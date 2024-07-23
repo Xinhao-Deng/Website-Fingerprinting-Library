@@ -258,7 +258,7 @@ def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file
     elif eval_method == "kNN":
         y_true, y_pred = knn_monitor(model, device, valid_iter, test_iter, num_classes, 10)
     elif eval_method == "Holmes":
-        open_threshold = 1e-3
+        open_threshold = 1e-2
         spatial_dist_file = os.path.join(ckp_path, "spatial_distribution.npz")
         assert os.path.exists(spatial_dist_file), f"{spatial_dist_file} does not exist, please run spatial_analysis.py first"
         spatial_data = np.load(spatial_dist_file)
@@ -279,7 +279,7 @@ def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file
                 all_sims -= webs_radius
                 outs = np.argmin(all_sims, axis=1)
 
-                if scenario == "open_world":
+                if scenario == "open-world":
                     outs_d = np.min(all_sims, axis=1)
                     open_indices = np.where(outs_d > open_threshold)[0]
                     outs[open_indices] = num_classes - 1

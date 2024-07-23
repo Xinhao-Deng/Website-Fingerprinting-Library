@@ -28,7 +28,6 @@ parser.add_argument("--max_num_tabs", type=int, default=1,
 
 # Input parameters
 parser.add_argument("--valid_file", type=str, default="valid", help="Validation file name")
-parser.add_argument("--test_file", type=str, default="test", help="Test file name")
 parser.add_argument("--feature", type=str, default="DIR", help="Feature type, options=[DIR, DT, DT2, TAM, TAF]")
 parser.add_argument("--seq_len", type=int, default=5000, help="Input sequence length")
 
@@ -62,20 +61,17 @@ if os.path.exists(out_file):
 
 # Load validation and test data
 valid_X, valid_y = data_processor.load_data(os.path.join(in_path, f"{args.valid_file}.npz"), args.feature, args.seq_len)
-test_X, test_y = data_processor.load_data(os.path.join(in_path, f"{args.test_file}.npz"), args.feature, args.seq_len)
-num_classes = len(np.unique(test_y))
+num_classes = len(np.unique(valid_y))
 
 # Ensure there are test samples for all categories
-assert num_classes == test_y.max() + 1, "Labels are not continuous"
+assert num_classes == valid_y.max() + 1, "Labels are not continuous"
 
 # Print dataset information
 print(f"Valid: X={valid_X.shape}, y={valid_y.shape}")
-print(f"Test: X={test_X.shape}, y={test_y.shape}")
 print(f"num_classes: {num_classes}")
 
 # Load data into iterators
 valid_iter = data_processor.load_iter(valid_X, valid_y, args.batch_size, False, args.num_workers)
-test_iter = data_processor.load_iter(test_X, test_y, args.batch_size, False, args.num_workers)
 
 # Initialize the model
 model = eval(f"models.{args.model}")(num_classes, args.max_num_tabs)

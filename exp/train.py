@@ -47,7 +47,6 @@ parser.add_argument('--eval_metrics', nargs='+', required=True, type=str,
                     help="Evaluation metrics, options=[Accuracy, Precision, Recall, F1-score, P@min, r-Precision]")
 parser.add_argument("--save_metric", type=str, default="F1-score", 
                     help="Save the model when the metric reaches its maximum value on the validation set")
-parser.add_argument("--log_path", type=str, default="./logs/", help="Log path")
 parser.add_argument("--checkpoints", type=str, default="./checkpoints/", help="Location of model checkpoints")
 parser.add_argument("--save_name", type=str, default="base", help="Name of the model file")
 
@@ -63,9 +62,7 @@ device = torch.device(args.device)
 in_path = os.path.join("./datasets", args.dataset)
 if not os.path.exists(in_path):
     raise FileNotFoundError(f"The dataset path does not exist: {in_path}")
-log_path = os.path.join(args.log_path, args.dataset, args.model)
 ckp_path = os.path.join(args.checkpoints, args.dataset, args.model)
-os.makedirs(log_path, exist_ok=True)
 os.makedirs(ckp_path, exist_ok=True)
 
 out_file = os.path.join(ckp_path, f"{args.save_name}.pth")

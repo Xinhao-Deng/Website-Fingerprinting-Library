@@ -63,10 +63,3 @@ class TikTok(nn.Module):
         x = self.classifier(x)
         
         return x
-
-if __name__ == '__main__':
-    net = TikTok(num_classes=100)  # Create an instance of the model with 100 classes
-    x = np.random.rand(32, 1, 5000)  # Generate a random input tensor with shape (32, 1, 5000)
-    x = torch.tensor(x, dtype=torch.float32)  # Convert the input to a torch tensor with float32 type
-    out = net(x)  # Perform a forward pass through the network
-    print(f"Input shape: {x.shape} --> Output shape: {out.shape}")  # Print the shapes of the input and output tensors

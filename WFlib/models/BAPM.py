@@ -97,14 +97,3 @@ class BAPM(nn.Module):
             x = torch.squeeze(x, dim=1)
         return x
     
-if __name__ == '__main__':
-    # Create an instance of the model and move it to GPU
-    net = BAPM(num_classes=100, num_tab=1).cuda()
-
-    # Generate random input data
-    x = np.random.rand(5, 1, 8500)
-    x = torch.tensor(x, dtype=torch.float32).cuda()
-
-    # Pass the data through the model
-    out = net(x)
-    print("Output shape:", out.shape)
