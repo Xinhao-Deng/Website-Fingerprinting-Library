@@ -19,7 +19,7 @@ np.random.seed(fix_seed)
 
 # Argument parser for command-line options, arguments, and sub-commands
 parser = argparse.ArgumentParser(description="WFlib")
-parser.add_argument("--dataset", type=str, required=True, default="DF18", help="Dataset name")
+parser.add_argument("--dataset", type=str, required=True, default="Undefended", help="Dataset name")
 parser.add_argument("--model", type=str, required=True, default="DF", help="Model name")
 parser.add_argument("--device", type=str, default="cpu", help="Device, options=[cpu, cuda, cuda:x]")
 

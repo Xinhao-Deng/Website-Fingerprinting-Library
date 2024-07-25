@@ -60,7 +60,7 @@ np.random.seed(fix_seed)
 parser = argparse.ArgumentParser(description="WFlib")
 
 # Define command-line arguments
-parser.add_argument("--dataset", type=str, required=True, default="DF18", help="Dataset name")
+parser.add_argument("--dataset", type=str, required=True, default="Undefended", help="Dataset name")
 parser.add_argument("--model", type=str, required=True, default="DF", help="Model name")
 parser.add_argument("--in_file", type=str, default="train", help="Input file name")
 parser.add_argument("--checkpoints", type=str, default="./checkpoints/", help="Directory to save model checkpoints")

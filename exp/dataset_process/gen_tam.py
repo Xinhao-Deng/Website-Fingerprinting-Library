@@ -19,7 +19,7 @@ np.random.seed(fix_seed)
 
 # Argument parser for command-line options, arguments, and sub-commands
 parser = argparse.ArgumentParser(description='Feature extraction')
-parser.add_argument("--dataset", type=str, required=True, default="DF18", help="Dataset name")
+parser.add_argument("--dataset", type=str, required=True, default="Undefended", help="Dataset name")
 parser.add_argument("--seq_len", type=int, default=5000, help="Input sequence length")
 parser.add_argument("--in_file", type=str, default="train", help="input file")
 

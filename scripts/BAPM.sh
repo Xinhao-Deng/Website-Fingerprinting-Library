@@ -1,4 +1,4 @@
-dataset=DF18
+dataset=Undefended
 
 python -u exp/train.py \
   --dataset ${dataset} \

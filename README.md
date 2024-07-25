@@ -56,13 +56,15 @@ pip install --user .
 
 ### Datasets
 
-- Download datasets ([link](https://drive.google.com/file/d/1yJJ7Qyba-9HF7MBgpFrkvfY4_3ZwTvyx/view?usp=sharing)) and place it in the folder `./datasets`
+- Download datasets ([link](https://zenodo.org/records/12819101)) and place it in the folder `./datasets`
+
+- The extracted dataset is in npz format and contains two values: X and y. X represents the packet sequence, with values being the direction (e.g., 1 or -1) multiplied by the timestamp. y corresponds to the website labels.
 
 - Divide the dataset into training, validation, and test sets. 
 For example, you can execute the following command.
 
 ```sh
-python exp/dataset_process/dataset_split.py --dataset DF18
+python exp/dataset_process/dataset_split.py --dataset 
 ```
 
 ### Training \& Evaluation

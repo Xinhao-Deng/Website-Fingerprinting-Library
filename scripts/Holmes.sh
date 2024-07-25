@@ -1,5 +1,7 @@
-dataset=DF18
-attr_method=DeepLiftShap
+#!/bin/bash
+
+dataset=Undefended 
+attr_method=DeepLiftShap 
 
 for filename in train valid
 do 
@@ -12,7 +14,7 @@ done
 python -u exp/train.py \
   --dataset ${dataset} \
   --model RF \
-  --device cuda:0 \
+  --device cuda:6 \
   --train_file temporal_train \
   --valid_file temporal_valid \
   --feature TAM \
@@ -56,7 +58,7 @@ done
 python -u exp/train.py \
   --dataset ${dataset} \
   --model Holmes \
-  --device cuda:0 \
+  --device cuda:6 \
   --train_file taf_aug_train \
   --valid_file taf_aug_valid \
   --feature TAF \
@@ -66,30 +68,38 @@ python -u exp/train.py \
   --learning_rate 5e-4 \
   --loss SupConLoss \
   --optimizer AdamW \
-  --eval_metrics Accuracy Precision Recall F1-score P@min \
+  --eval_metrics Accuracy Precision Recall F1-score \
   --save_metric F1-score \
   --save_name max_f1
 
 python -u exp/data_analysis/spatial_analysis.py \
   --dataset ${dataset} \
   --model Holmes \
-  --device cuda:0 \
+  --device cuda:6 \
   --valid_file taf_aug_valid \
-  --test_file taf_test \
   --feature TAF \
   --seq_len 2000 \
   --batch_size 256 \
   --save_name max_f1
 
-  python -u exp/test.py \
-  --dataset ${dataset} \
-  --model Holmes \
-  --device cuda:7 \
-  --valid_file taf_aug_valid \
-  --test_file taf_test \
-  --feature TAF \
-  --seq_len 2000 \
-  --batch_size 256 \
-  --eval_method Holmes \
-  --eval_metrics Accuracy Precision Recall F1-score P@min \
-  --save_name max_f1
+for percent in {20..100..10}
+do
+    python -u exp/dataset_process/gen_taf.py \
+        --dataset ${dataset} \
+        --seq_len 10000 \
+        --in_file test_p${percent}
+
+    python -u exp/test.py \
+    --dataset ${dataset} \
+    --model Holmes \
+    --device cuda:6 \
+    --valid_file taf_aug_valid \
+    --test_file taf_test_p${percent} \
+    --feature TAF \
+    --seq_len 2000 \
+    --batch_size 256 \
+    --eval_method Holmes \
+    --eval_metrics Accuracy Precision Recall F1-score \
+    --save_name max_f1 \
+    --result_file test_p${percent}
+done

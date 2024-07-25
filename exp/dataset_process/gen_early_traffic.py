@@ -14,7 +14,7 @@ np.random.seed(fix_seed)
 
 # Set up argument parser to get dataset name from command line arguments
 parser = argparse.ArgumentParser(description="WFlib")
-parser.add_argument("--dataset", type=str, required=True, default="DF18", help="Dataset name")
+parser.add_argument("--dataset", type=str, required=True, default="Undefended", help="Dataset name")
 
 args = parser.parse_args()
 in_path = os.path.join("./datasets", f"{args.dataset}")
