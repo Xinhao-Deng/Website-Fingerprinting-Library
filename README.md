@@ -64,12 +64,12 @@ pip install --user .
 For example, you can execute the following command.
 
 ```sh
-python exp/dataset_process/dataset_split.py --dataset 
+python exp/dataset_process/dataset_split.py --dataset Undefended
 ```
 
 ### Training \& Evaluation
 
-We provide all experiment scripts for WF attacks in the folder `./scripts/`. For example, you can reproduce the AWF attack on the DF18 dataset by executing the following command.
+We provide all experiment scripts for WF attacks in the folder `./scripts/`. For example, you can reproduce the AWF attack on the Undefended dataset by executing the following command.
 
 ```sh
 bash scripts/AWF.sh
@@ -78,7 +78,7 @@ bash scripts/AWF.sh
 The `./scripts/AWF.sh` file contains the commands for model training and evaluation.
 
 ```sh
-dataset=DF18
+dataset=Undefended
 
 python -u exp/train.py \
   --dataset ${dataset} \
