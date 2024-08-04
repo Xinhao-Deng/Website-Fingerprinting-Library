@@ -71,7 +71,7 @@ def load_data(data_path, feature_type, seq_len):
         raise ValueError(f"Feature type {feature_type} is not matched.")
     return X, y
 
-def load_iter(X, y, batch_size, is_train=True, num_workers=8):
+def load_iter(X, y, batch_size, is_train=True, num_workers=8, weight_sample=False):
     """
     Load data into an iterator for batch processing.
 
@@ -81,10 +81,21 @@ def load_iter(X, y, batch_size, is_train=True, num_workers=8):
     batch_size (int): Number of samples per batch.
     is_train (bool): Whether the iterator is for training data.
     num_workers (int): Number of workers for data loading.
+    weight_sample (bool): Whether to use weighted sampling.
 
     Returns:
     DataLoader: Data loader for batch processing.
     """
+    if weight_sample:
+        class_sample_count = np.unique(y.numpy(), return_counts=True)[1]
+        weight = 1.0 / class_sample_count
+        samples_weight = weight[y.numpy()]
+        samples_weight = torch.from_numpy(samples_weight)
+        sampler = torch.utils.data.sampler.WeightedRandomSampler(
+            samples_weight, len(samples_weight)
+        )
+        dataset = torch.utils.data.TensorDataset(X, y)
+        return torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=sampler, num_workers=num_workers)
     dataset = torch.utils.data.TensorDataset(X, y)
     return torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=is_train, drop_last=is_train, num_workers=num_workers)
 
@@ -242,3 +253,4 @@ def extract_TAM(sequences, num_workers=30):
                 pbar.update(1)
 
     return TAM
+
