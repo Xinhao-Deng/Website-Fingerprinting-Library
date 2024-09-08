@@ -93,7 +93,5 @@ class BAPM(nn.Module):
         x_reshaped = x.contiguous().view(-1, x.size(-1))
         x_reshaped = self.fc(x_reshaped)
         x = x_reshaped.contiguous().view(x.size(0), -1, x_reshaped.size(-1))
-        if self.num_tab == 1:
-            x = torch.squeeze(x, dim=1)
-        return x
+        return x.mean(1)
     

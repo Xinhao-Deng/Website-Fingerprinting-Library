@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from pytorch_metric_learning import miners, losses
 from sklearn.metrics.pairwise import cosine_similarity
 from .evaluator import measurement
-from .netclr_augmentor import Augmentor
 
 
 def knn_monitor(net, device, memory_data_loader, test_data_loader, num_classes, k=200, t=0.1):
@@ -104,33 +103,6 @@ def fast_count_burst(arr):
     
     return adjusted_lengths
 
-def build_augmentor(x_random):
-    """
-    Build an augmentor for data augmentation.
-
-    Parameters:
-    x_random (Tensor): Input tensor.
-
-    Returns:
-    Augmentor: Augmentor object.
-    """
-    x_random = x_random.numpy().squeeze(1)
-    outgoing_burst_sizes = []
-    
-    for packets in x_random:
-        packets = np.trim_zeros(packets, "fb")
-        bursts = fast_count_burst(packets)
-        outgoing_burst_sizes += list(bursts[bursts > 0])
-
-    max_outgoing_burst_size = int(max(outgoing_burst_sizes))
-    count, bins = np.histogram(outgoing_burst_sizes, bins=max_outgoing_burst_size - 1)
-    PDF = count / np.sum(count)
-    OUTGOING_BURST_SIZE_CDF = np.zeros_like(bins)
-    OUTGOING_BURST_SIZE_CDF[1:] = np.cumsum(PDF)
-    augmentor = Augmentor(max_outgoing_burst_size, outgoing_burst_sizes, OUTGOING_BURST_SIZE_CDF)
-    
-    return augmentor
-
 def model_train(
     model,
     optimizer,
@@ -142,31 +114,18 @@ def model_train(
     train_epochs,
     out_file,
     num_classes,
+    num_tabs,
     device
 ):
-    """
-    Train the model.
-
-    Parameters:
-    model (nn.Module): The neural network model.
-    optimizer (torch.optim.Optimizer): Optimizer for training.
-    train_iter (DataLoader): DataLoader for training data.
-    valid_iter (DataLoader): DataLoader for validation data.
-    loss_name (str): Name of the loss function.
-    save_metric (str): Metric to determine the best model.
-    eval_metrics (list): List of evaluation metrics.
-    train_epochs (int): Number of training epochs.
-    out_file (str): Output file to save the model.
-    num_classes (int): Number of classes.
-    device (torch.device): The device to run the computations on.
-    """
-    if loss_name == "CrossEntropyLoss":
-        criterion = torch.nn.CrossEntropyLoss()
+    if loss_name in ["CrossEntropyLoss", "BCEWithLogitsLoss"]:
+        criterion = eval(f"torch.nn.{loss_name}")()
     elif loss_name == "TripletMarginLoss":
         criterion = losses.TripletMarginLoss(margin=0.1)
         miner = miners.TripletMarginMiner(margin=0.1, type_of_triplets="semihard")
     elif loss_name == "SupConLoss":
         criterion = losses.SupConLoss(temperature=0.1)
+    elif loss_name == "MultiCrossEntropyLoss":
+        criterion = torch.nn.CrossEntropyLoss()
     else:
         raise ValueError(f"Loss function {loss_name} is not matched.")
     
@@ -188,6 +147,13 @@ def model_train(
                 loss = criterion(outs, cur_y, hard_pairs)
             elif loss_name == "SupConLoss":
                 loss = criterion(outs, cur_y)
+            elif loss_name == "MultiCrossEntropyLoss":
+                loss = 0
+                cur_indices = torch.nonzero(cur_y)
+                cur_indices = cur_indices[:,1].view(-1, num_tabs)
+                for ct in range(num_tabs):
+                    loss_ct = criterion(outs[:, ct], cur_indices[:, ct])
+                    loss = loss + loss_ct
             else:
                 loss = criterion(outs, cur_y)
             
@@ -212,34 +178,46 @@ def model_train(
                 for index, cur_data in enumerate(valid_iter):
                     cur_X, cur_y = cur_data[0].to(device), cur_data[1].to(device)
                     outs = model(cur_X)
-                    outs = torch.argsort(outs, dim=1, descending=True)[:,0]
-                    valid_pred.append(outs.cpu().numpy())
+                    
+                    if loss_name == "BCEWithLogitsLoss":
+                        cur_pred = torch.sigmoid(outs)
+                    elif loss_name == "CrossEntropyLoss":
+                        cur_pred = torch.argsort(outs, dim=1, descending=True)[:,0]
+                    elif loss_name == "MultiCrossEntropyLoss":
+                        cur_indices = torch.argmax(outs, dim=-1).cpu()
+                        cur_pred = torch.zeros((cur_indices.shape[0], num_classes))
+                        for cur_tab in range(cur_indices.shape[1]):
+                            row_indices = torch.arange(cur_pred.shape[0])
+                            cur_pred[row_indices,cur_indices[:,cur_tab]] += 1
+                    else:
+                        raise ValueError(f"Loss function {loss_name} is not matched.")
+
+                    valid_pred.append(cur_pred.cpu().numpy())
                     valid_true.append(cur_y.cpu().numpy())
                 
                 valid_pred = np.concatenate(valid_pred)
                 valid_true = np.concatenate(valid_true)
         
-        valid_result = measurement(valid_true, valid_pred, eval_metrics)
+        valid_result = measurement(valid_true, valid_pred, eval_metrics, num_tabs)
         print(f"{epoch}: {valid_result}")
         
         if valid_result[save_metric] > metric_best_value:
             metric_best_value = valid_result[save_metric]
             torch.save(model.state_dict(), out_file)
 
-def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file, num_classes, device, ckp_path, scenario):
-    """
-    Evaluate the model.
-
-    Parameters:
-    model (nn.Module): The neural network model.
-    test_iter (DataLoader): DataLoader for test data.
-    valid_iter (DataLoader): DataLoader for validation data.
-    eval_method (str): Evaluation method.
-    eval_metrics (list): List of evaluation metrics.
-    out_file (str): Output file to save the results.
-    num_classes (int): Number of classes.
-    device (torch.device): The device to run the computations on.
-    """
+def model_eval(
+        model, 
+        test_iter, 
+        valid_iter, 
+        eval_method, 
+        eval_metrics, 
+        out_file, 
+        num_classes, 
+        ckp_path, 
+        scenario,
+        num_tabs,
+        device
+    ):
     if eval_method == "common":
         with torch.no_grad():
             model.eval()
@@ -249,12 +227,23 @@ def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file
             for index, cur_data in enumerate(test_iter):
                 cur_X, cur_y = cur_data[0].to(device), cur_data[1].to(device)
                 outs = model(cur_X)
-                outs = torch.argsort(outs, dim=1, descending=True)[:,0]
-                y_pred.append(outs.cpu().numpy())
+                if num_tabs == 1:
+                    cur_pred = torch.argsort(outs, dim=1, descending=True)[:,0]
+                else:
+                    if len(outs.shape) <= 2:
+                        cur_pred = torch.sigmoid(outs)
+                    else:
+                        cur_indices = torch.argmax(outs, dim=-1).cpu()
+                        cur_pred = torch.zeros((cur_indices.shape[0], num_classes))
+                        for cur_tab in range(cur_indices.shape[1]):
+                            row_indices = torch.arange(cur_pred.shape[0])
+                            cur_pred[row_indices,cur_indices[:,cur_tab]] += 1
+
+                y_pred.append(cur_pred.cpu().numpy())
                 y_true.append(cur_y.cpu().numpy())
 
-            y_pred = np.concatenate(y_pred).flatten()
-            y_true = np.concatenate(y_true).flatten()
+            y_pred = np.concatenate(y_pred)
+            y_true = np.concatenate(y_true)
     elif eval_method == "kNN":
         y_true, y_pred = knn_monitor(model, device, valid_iter, test_iter, num_classes, 10)
     elif eval_method == "Holmes":
@@ -279,7 +268,7 @@ def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file
                 all_sims -= webs_radius
                 outs = np.argmin(all_sims, axis=1)
 
-                if scenario == "open-world":
+                if scenario == "Open-world":
                     outs_d = np.min(all_sims, axis=1)
                     open_indices = np.where(outs_d > open_threshold)[0]
                     outs[open_indices] = num_classes - 1
@@ -291,7 +280,7 @@ def model_eval(model, test_iter, valid_iter, eval_method, eval_metrics, out_file
     else:
         raise ValueError(f"Evaluation method {eval_method} is not matched.")
     
-    result = measurement(y_true, y_pred, eval_metrics)
+    result = measurement(y_true, y_pred, eval_metrics, num_tabs)
     print(result)
 
     with open(out_file, "w") as fp:

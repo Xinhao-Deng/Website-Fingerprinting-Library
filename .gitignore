@@ -164,4 +164,4 @@ scripts/*
 !scripts/*.sh
 checkpoints
 logs
-debug.sh
+tmp_files

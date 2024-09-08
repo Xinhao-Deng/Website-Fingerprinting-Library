@@ -88,7 +88,7 @@ class VarCNN(nn.Module):
     This class defines the overall VarCNN composed of two encoders (directional and temporal)
     and a classifier for final prediction.
     """
-    def __init__(self, num_classes, num_tab=1):
+    def __init__(self, num_classes):
         super(VarCNN, self).__init__()
         # Two separate encoders for directional and temporal data
         self.dir_encoder = Encoder()

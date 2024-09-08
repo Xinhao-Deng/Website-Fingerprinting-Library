@@ -447,5 +447,5 @@ class TMWF(nn.Module):
         feat = self.proj(x)
         o = self.trm(feat, self.query_embed.unsqueeze(0), self.pos_embed.unsqueeze(0))
         logits = self.fc(o)
-
-        return logits.squeeze()
+        
+        return logits.mean(1)

@@ -22,7 +22,7 @@ def length_align(X, seq_len):
         X = np.pad(X, pad_width=pad_width, mode="constant", constant_values=0)  # Pad the sequence with zeros
     return X
 
-def load_data(data_path, feature_type, seq_len):
+def load_data(data_path, feature_type, seq_len, num_tab=1):
     """
     Load and process data from a specified path.
 
@@ -42,11 +42,9 @@ def load_data(data_path, feature_type, seq_len):
         X = np.sign(X)  # Directional feature
         X = length_align(X, seq_len)
         X = torch.tensor(X[:,np.newaxis], dtype=torch.float32)
-        y = torch.tensor(y, dtype=torch.int64)
     elif feature_type == "DT":
         X = length_align(X, seq_len)
         X = torch.tensor(X[:,np.newaxis], dtype=torch.float32)
-        y = torch.tensor(y, dtype=torch.int64)
     elif feature_type == "DT2":
         X_dir = np.sign(X)
         X_time = np.abs(X)
@@ -56,19 +54,23 @@ def load_data(data_path, feature_type, seq_len):
         X_time = length_align(X_time, seq_len)[:, np.newaxis]
         X = np.concatenate([X_dir, X_time], axis=1)
         X = torch.tensor(X, dtype=torch.float32)
-        y = torch.tensor(y, dtype=torch.int64)
     elif feature_type == "TAM":
         X = length_align(X, seq_len)
         X = torch.tensor(X[:,np.newaxis], dtype=torch.float32)
-        y = torch.tensor(y, dtype=torch.int64)
     elif feature_type == "TAF":
         X = length_align(X, seq_len)
         X = torch.tensor(X, dtype=torch.float32)
-        y = torch.tensor(y, dtype=torch.int64)
     elif feature_type == "Origin":
         X = length_align(X, seq_len)
+        return X, y
     else:
         raise ValueError(f"Feature type {feature_type} is not matched.")
+    
+    if num_tab == 1:
+        y = torch.tensor(y, dtype=torch.int64)
+    else:
+        y = torch.tensor(y, dtype=torch.float32)
+
     return X, y
 
 def load_iter(X, y, batch_size, is_train=True, num_workers=8, weight_sample=False):

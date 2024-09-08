@@ -2,8 +2,39 @@ import torch
 import random
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import roc_auc_score
 
-def measurement(y_true, y_pred, eval_metrics):
+def precision_at_k(y_true, y_pred, k):
+    top_k_preds = np.argsort(y_pred, axis=1)[:, -k:]
+    precisions = []
+
+    for i in range(y_true.shape[0]):
+        true_positives = np.sum(y_true[i, top_k_preds[i]])
+        precisions.append(true_positives / k)
+
+    return np.mean(precisions)
+
+def average_precision_at_k(y_true, y_pred, k):
+    top_k_preds = np.argsort(y_pred, axis=1)[:, -k:]
+    average_precisions = []
+
+    for i in range(y_true.shape[0]):
+        true_positives = 0
+        precision_at_i = 0
+
+        for j in range(k):
+            if y_true[i, top_k_preds[i, j]] == 1:
+                true_positives += 1
+                precision_at_i += true_positives / (j + 1)
+
+        if true_positives > 0:
+            average_precisions.append(precision_at_i / true_positives)
+        else:
+            average_precisions.append(0)
+
+    return np.mean(average_precisions)
+
+def measurement(y_true, y_pred, eval_metrics, num_tabs=1):
     """
     Calculate evaluation metrics for the given true and predicted labels.
 
@@ -18,17 +49,23 @@ def measurement(y_true, y_pred, eval_metrics):
     results = {}
     for eval_metric in eval_metrics:
         if eval_metric == "Accuracy":
-            results[eval_metric] = round(accuracy_score(y_true, y_pred) * 100, 2)
+            results[eval_metric] = round(accuracy_score(y_true, y_pred) , 2)
         elif eval_metric == "Precision":
-            results[eval_metric] = round(precision_score(y_true, y_pred, average="macro") * 100, 2)
+            results[eval_metric] = round(precision_score(y_true, y_pred, average="macro") , 4)
         elif eval_metric == "Recall":
-            results[eval_metric] = round(recall_score(y_true, y_pred, average="macro") * 100, 2)
+            results[eval_metric] = round(recall_score(y_true, y_pred, average="macro") , 4)
         elif eval_metric == "F1-score":
-            results[eval_metric] = round(f1_score(y_true, y_pred, average="macro") * 100, 2)
+            results[eval_metric] = round(f1_score(y_true, y_pred, average="macro") , 4)
         elif eval_metric == "P@min":
-            results[eval_metric] = round(np.min(precision_score(y_true, y_pred, average=None)) * 100, 2)
+            results[eval_metric] = round(np.min(precision_score(y_true, y_pred, average=None)) , 4)
         elif eval_metric == "r-Precision":
-            results[eval_metric] = round(cal_r_precision(y_true, y_pred)*100, 2)
+            results[eval_metric] = round(cal_r_precision(y_true, y_pred), 4)
+        elif eval_metric == "AUC":
+            results[eval_metric] = round(roc_auc_score(y_true, y_pred, average='macro'), 4)
+        elif eval_metric.startswith("P@"):
+            results[eval_metric] = round(precision_at_k(y_true, y_pred, int(eval_metric[-1])), 4)
+        elif eval_metric.startswith("AP@"):
+            results[eval_metric] = round(average_precision_at_k(y_true, y_pred, int(eval_metric[-1])), 4)
         else:
             raise ValueError(f"Metric {eval_metric} is not matched.")
     return results

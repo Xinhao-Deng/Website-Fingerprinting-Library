@@ -1,4 +1,4 @@
-dataset=Undefended
+dataset=CW
 
 for filename in train valid test
 do 
@@ -32,5 +32,5 @@ python -u exp/test.py \
   --feature TAM \
   --seq_len 1800 \
   --batch_size 256 \
-  --eval_metrics Accuracy Precision Recall F1-score P@min \
-  --save_name max_f1
+  --eval_metrics Accuracy Precision Recall F1-score \
+  --load_name max_f1

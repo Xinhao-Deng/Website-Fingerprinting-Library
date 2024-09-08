@@ -23,7 +23,7 @@ class ConvBlock(nn.Module):
         return self.block(x)
 
 class TikTok(nn.Module):
-    def __init__(self, num_classes, num_tab=1):
+    def __init__(self, num_classes):
         super(TikTok, self).__init__()
         # Configuration parameters for the convolutional blocks
         filter_num = [32, 64, 128, 256]  # Number of filters for each block

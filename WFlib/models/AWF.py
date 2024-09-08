@@ -3,7 +3,7 @@ from torch import nn
 import numpy as np
 
 class AWF(nn.Module):
-    def __init__(self, num_classes=100, num_tab=1):
+    def __init__(self, num_classes=100):
         super(AWF, self).__init__()
         
         # Define the feature extraction part of the network using a sequential container

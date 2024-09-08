@@ -110,7 +110,7 @@ class Holmes(nn.Module):
     """
     The main model class combining 2D and 1D convolutional encoders, followed by an adaptive average pooling and classification.
     """
-    def __init__(self, num_classes, num_tab=1):
+    def __init__(self, num_classes):
         super(Holmes, self).__init__()
         in_channels_1d = 16
         conv_num_layers_1d = 4

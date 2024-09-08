@@ -1,4 +1,4 @@
-dataset=Undefended
+dataset=CW
 
 python -u exp/train.py \
   --dataset ${dataset} \
@@ -21,5 +21,5 @@ python -u exp/test.py \
   --feature DIR \
   --seq_len 10000 \
   --batch_size 256 \
-  --eval_metrics Accuracy Precision Recall F1-score P@min \
-  --save_name max_f1
+  --eval_metrics Accuracy Precision Recall F1-score \
+  --load_name max_f1

@@ -226,13 +226,12 @@ class LocalProfiling(nn.Module):
 
 # ARES model
 class ARES(nn.Module):
-    def __init__(self, num_classes=100, num_tab=1):
+    def __init__(self, num_classes=100):
         """
         Initialize the ARES model.
 
         Parameters:
         num_classes (int): Number of output classes.
-        num_tab (int): Number of tabs (not used in this model).
         """
         super(ARES, self).__init__()
         

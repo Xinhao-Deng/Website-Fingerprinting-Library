@@ -23,7 +23,7 @@ class ConvBlock(nn.Module):
         return self.block(x)
 
 class DF(nn.Module):
-    def __init__(self, num_classes, num_tab=1):
+    def __init__(self, num_classes):
         super(DF, self).__init__()
         
         # Configuration parameters for the convolutional blocks

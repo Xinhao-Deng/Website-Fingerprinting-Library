@@ -3,7 +3,7 @@ import math
 import torch
 import numpy as np
 
-class RF(nn.Module):
+class MultiTabRF(nn.Module):
     def __init__(self, num_classes=100):
         """
         Initialize the RF model.
@@ -11,7 +11,7 @@ class RF(nn.Module):
         Parameters:
         num_classes (int): Number of output classes.
         """
-        super(RF, self).__init__()
+        super(MultiTabRF, self).__init__()
         
         # Create feature extraction layers
         features = make_layers([128, 128, 'M', 256, 256, 'M', 512] + [num_classes])
@@ -24,14 +24,17 @@ class RF(nn.Module):
         self.features = features
         self.class_num = num_classes
         
-        # Adaptive average pooling layer for classification
-        self.classifier = nn.AdaptiveAvgPool1d(1)
+        # Fully connected layer to project to embedding space
+        self.mlp = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(in_features=num_classes * 65, out_features=num_classes),
+        )
         
         # Initialize weights
         if init_weights:
             self._initialize_weights()
 
-    def forward(self, x):
+    def forward(self, x, num_tabs=1):
         """
         Forward pass of the model.
 
@@ -44,8 +47,7 @@ class RF(nn.Module):
         x = self.first_layer(x)
         x = x.view(x.size(0), self.first_layer_out_channel, -1)
         x = self.features(x)
-        x = self.classifier(x)
-        x = x.view(x.size(0), -1)
+        x = self.mlp(x)
         return x
 
     def _initialize_weights(self):

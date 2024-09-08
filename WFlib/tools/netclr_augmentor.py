@@ -5,6 +5,26 @@ import random
 import numpy as np
 import bisect
 
+def find_bursts(x):
+    direction = x[0]
+    bursts = []
+    start = 0
+    temp_burst = x[0]
+    for i in range(1, len(x)):
+        if x[i] == 0.0:
+            break
+        
+        elif x[i] == direction:
+            temp_burst += x[i]
+            
+        else:
+            bursts.append((start, i, temp_burst))
+            start = i
+            temp_burst = x[i]
+            direction *= -1
+            
+    return bursts
+
 class Augmentor:
     def __init__(self, max_outgoing_burst_size, outgoing_burst_sizes, OUTGOING_BURST_SIZE_CDF):
         """
@@ -15,14 +35,6 @@ class Augmentor:
         outgoing_burst_sizes (list): List of outgoing burst sizes.
         OUTGOING_BURST_SIZE_CDF (ndarray): Cumulative distribution function of outgoing burst sizes.
         """
-        methods = {
-            'merge downstream burst',
-            'change downstream burst sizes',
-            'merge downstream and upstream bursts',
-            'add upstream bursts',
-            'remove upstream bursts',
-            'divide bursts'
-        }
     
         self.large_burst_threshold = 10  # Threshold to classify large bursts
         

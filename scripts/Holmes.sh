@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dataset=Undefended 
+dataset=CW
 attr_method=DeepLiftShap 
 
 for filename in train valid
@@ -100,6 +100,6 @@ do
     --batch_size 256 \
     --eval_method Holmes \
     --eval_metrics Accuracy Precision Recall F1-score \
-    --save_name max_f1 \
+    --load_name max_f1 \
     --result_file test_p${percent}
 done

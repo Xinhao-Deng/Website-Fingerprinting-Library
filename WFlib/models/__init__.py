@@ -7,5 +7,6 @@ from .TF import TF
 from .TikTok import TikTok
 from .TMWF import TMWF
 from .VarCNN import VarCNN
-from .NetCLR import NetCLR
+from .NetCLR import NetCLR, DFsimCLR
 from .Holmes import Holmes
+from .MultiTabRF import MultiTabRF
