@@ -49,15 +49,15 @@ def measurement(y_true, y_pred, eval_metrics, num_tabs=1):
     results = {}
     for eval_metric in eval_metrics:
         if eval_metric == "Accuracy":
-            results[eval_metric] = round(accuracy_score(y_true, y_pred) , 2)
+            results[eval_metric] = round(accuracy_score(y_true, y_pred), 4)
         elif eval_metric == "Precision":
-            results[eval_metric] = round(precision_score(y_true, y_pred, average="macro") , 4)
+            results[eval_metric] = round(precision_score(y_true, y_pred, average="macro"), 4)
         elif eval_metric == "Recall":
-            results[eval_metric] = round(recall_score(y_true, y_pred, average="macro") , 4)
+            results[eval_metric] = round(recall_score(y_true, y_pred, average="macro"), 4)
         elif eval_metric == "F1-score":
-            results[eval_metric] = round(f1_score(y_true, y_pred, average="macro") , 4)
+            results[eval_metric] = round(f1_score(y_true, y_pred, average="macro"), 4)
         elif eval_metric == "P@min":
-            results[eval_metric] = round(np.min(precision_score(y_true, y_pred, average=None)) , 4)
+            results[eval_metric] = round(np.min(precision_score(y_true, y_pred, average=None)), 4)
         elif eval_metric == "r-Precision":
             results[eval_metric] = round(cal_r_precision(y_true, y_pred), 4)
         elif eval_metric == "AUC":
