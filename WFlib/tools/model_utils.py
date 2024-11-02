@@ -115,9 +115,10 @@ def model_train(
     out_file,
     num_classes,
     num_tabs,
-    device
+    device,
+    lradj
 ):
-    if loss_name in ["CrossEntropyLoss", "BCEWithLogitsLoss"]:
+    if loss_name in ["CrossEntropyLoss", "BCEWithLogitsLoss", "MultiLabelSoftMarginLoss"]:
         criterion = eval(f"torch.nn.{loss_name}")()
     elif loss_name == "TripletMarginLoss":
         criterion = losses.TripletMarginLoss(margin=0.1)
@@ -128,9 +129,13 @@ def model_train(
         criterion = torch.nn.CrossEntropyLoss()
     else:
         raise ValueError(f"Loss function {loss_name} is not matched.")
+
+    if lradj != "None":
+        scheduler = eval(f"torch.optim.lr_scheduler.{lradj}")(optimizer, step_size=30, gamma=0.74)
     
     assert save_metric in eval_metrics, f"save_metric {save_metric} should be included in {eval_metrics}"
     metric_best_value = 0
+    best_epoch = 0
 
     for epoch in range(train_epochs):
         model.train()
@@ -179,7 +184,7 @@ def model_train(
                     cur_X, cur_y = cur_data[0].to(device), cur_data[1].to(device)
                     outs = model(cur_X)
                     
-                    if loss_name == "BCEWithLogitsLoss":
+                    if loss_name in ["BCEWithLogitsLoss", "MultiLabelSoftMarginLoss"]:
                         cur_pred = torch.sigmoid(outs)
                     elif loss_name == "CrossEntropyLoss":
                         cur_pred = torch.argsort(outs, dim=1, descending=True)[:,0]
@@ -203,7 +208,11 @@ def model_train(
         
         if valid_result[save_metric] > metric_best_value:
             metric_best_value = valid_result[save_metric]
+            best_epoch = epoch
             torch.save(model.state_dict(), out_file)
+        print(f"best epoch {best_epoch}: {save_metric}={metric_best_value}")
+        if lradj != "None":
+            scheduler.step()
 
 def model_eval(
         model, 

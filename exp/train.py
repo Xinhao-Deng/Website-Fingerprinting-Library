@@ -68,6 +68,7 @@ if os.path.exists(out_file):
     sys.exit(1)
 
 # Load training and validation data
+print(f"loading train file: ", os.path.join(in_path, f"{args.train_file}.npz"))
 train_X, train_y = data_processor.load_data(os.path.join(in_path, f"{args.train_file}.npz"), args.feature, args.seq_len, args.num_tabs)
 valid_X, valid_y = data_processor.load_data(os.path.join(in_path, f"{args.valid_file}.npz"), args.feature, args.seq_len, args.num_tabs)
 
@@ -123,5 +124,6 @@ model_utils.model_train(
     out_file,
     num_classes,
     args.num_tabs,
-    device
+    device,
+    args.lradj
 )

@@ -15,24 +15,11 @@ def precision_at_k(y_true, y_pred, k):
     return np.mean(precisions)
 
 def average_precision_at_k(y_true, y_pred, k):
-    top_k_preds = np.argsort(y_pred, axis=1)[:, -k:]
-    average_precisions = []
-
-    for i in range(y_true.shape[0]):
-        true_positives = 0
-        precision_at_i = 0
-
-        for j in range(k):
-            if y_true[i, top_k_preds[i, j]] == 1:
-                true_positives += 1
-                precision_at_i += true_positives / (j + 1)
-
-        if true_positives > 0:
-            average_precisions.append(precision_at_i / true_positives)
-        else:
-            average_precisions.append(0)
-
-    return np.mean(average_precisions)
+    res = 0
+    for i in range(k):
+        res += precision_at_k(y_true, y_pred, i+1)
+    res /= k
+    return res
 
 def measurement(y_true, y_pred, eval_metrics, num_tabs=1):
     """

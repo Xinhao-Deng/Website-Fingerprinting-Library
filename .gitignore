@@ -165,3 +165,4 @@ scripts/*
 checkpoints
 logs
 tmp_files
+analysis

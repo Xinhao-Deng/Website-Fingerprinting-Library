@@ -57,7 +57,7 @@ def load_data(data_path, feature_type, seq_len, num_tab=1):
     elif feature_type == "TAM":
         X = length_align(X, seq_len)
         X = torch.tensor(X[:,np.newaxis], dtype=torch.float32)
-    elif feature_type == "TAF":
+    elif feature_type in ["TAF", "MTAF"]:
         X = length_align(X, seq_len)
         X = torch.tensor(X, dtype=torch.float32)
     elif feature_type == "Origin":
@@ -161,6 +161,83 @@ def agg_interval(packets):
     features.append(vals)
 
     return np.array(features, dtype=np.float32)
+
+def agg_interval2(packets):
+    features = []
+    features.append(np.sum(packets>0))
+    features.append(np.sum(packets<0))
+
+    pos_packets = packets[packets>0]
+    neg_packets = np.abs(packets[packets<0])
+    features.append(np.sum(np.diff(pos_packets)))
+    features.append(np.sum(np.diff(neg_packets)))
+
+    dirs = np.sign(packets)
+    assert not np.any(dir == 0), "Array contains zero!"
+    bursts = fast_count_burst(dirs)
+    features.append(np.sum(bursts>0))
+    features.append(np.sum(bursts<0))
+
+    pos_bursts = bursts[bursts>0]
+    neg_bursts = np.abs(bursts[bursts<0])
+    if len(pos_bursts) == 0:
+        features.append(0)
+    else:
+        features.append(np.mean(pos_bursts))
+    if len(neg_bursts) == 0:
+        features.append(0)
+    else:
+        features.append(np.mean(neg_bursts))
+
+    return np.array(features, dtype=np.float32)
+
+def process_MTAF(index, sequence, interval, max_len):
+    packets = np.trim_zeros(sequence, "fb")
+    abs_packets = np.abs(packets)
+    st_time = abs_packets[0]
+    st_pos = 0
+    TAF = np.zeros((8, max_len))
+
+    for interval_idx in range(max_len):
+        ed_time = (interval_idx + 1) * interval
+        if interval_idx == max_len - 1:
+            ed_pos = abs_packets.shape[0]
+        else:
+            ed_pos = np.searchsorted(abs_packets, st_time + ed_time)
+
+        assert ed_pos >= st_pos, f"{index}: st:{st_pos} -> ed:{ed_pos}"
+        if st_pos < ed_pos:
+            cur_packets = packets[st_pos:ed_pos]
+            TAF[..., interval_idx] = agg_interval2(cur_packets)
+        st_pos = ed_pos
+    
+    return index, TAF
+
+def extract_MTAF(sequences, num_workers=30):
+    """
+    Extract the TAF from sequences.
+
+    Parameters:
+    sequences (ndarray): Input sequences.
+
+    Returns:
+    ndarray: Extracted TAF.
+    """
+    interval = 20
+    max_len = 8000
+    sequences *= 1000
+    num_sequences = sequences.shape[0]
+    TAF = np.zeros((num_sequences, 8, max_len))
+
+    with ProcessPoolExecutor(max_workers=min(num_workers, num_sequences)) as executor:
+        futures = [executor.submit(process_MTAF, index, sequences[index], interval, max_len) for index in range(num_sequences)]
+        with tqdm(total=num_sequences) as pbar:
+            for future in as_completed(futures):
+                index, result = future.result()
+                TAF[index] = result
+                pbar.update(1)
+
+    return TAF
 
 def process_TAF(index, sequence, interval, max_len):
     packets = np.trim_zeros(sequence, "fb")

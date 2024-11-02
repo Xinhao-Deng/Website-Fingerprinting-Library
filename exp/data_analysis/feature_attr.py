@@ -31,10 +31,6 @@ parser.add_argument("--device", type=str, default="cpu", help="Device to use, op
 parser.add_argument("--attr_method", type=str, default="DeepLiftShap", 
                     help="Feature attribution method, options=[DeepLiftShap, GradientShap]")
 
-# Threat model parameters
-parser.add_argument("--max_num_tabs", type=int, default=1, 
-                    help="Maximum number of tabs opened by users while browsing")
-
 # Input parameters
 parser.add_argument("--in_file", type=str, default="train", help="Input file name")
 parser.add_argument("--feature", type=str, default="DIR", help="Feature type, options=[DIR, DT, DT2, TAM, TAF]")
@@ -82,7 +78,7 @@ print(f"Valid: X={valid_X.shape}, y={valid_y.shape}")
 print(f"num_classes: {num_classes}")
 
 # Initialize the model
-model = eval(f"models.{args.model}")(num_classes, args.max_num_tabs)
+model = eval(f"models.{args.model}")(num_classes)
 model.load_state_dict(torch.load(os.path.join(ckp_path, f"{args.save_name}.pth"), map_location="cpu"))
 
 # Perform feature attribution using the specified method

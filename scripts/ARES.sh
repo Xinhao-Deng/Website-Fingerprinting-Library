@@ -6,7 +6,7 @@ python -u exp/train.py \
   --device cuda:7 \
   --feature DIR \
   --seq_len 10000 \
-  --train_epochs 30 \
+  --train_epochs 300 \
   --batch_size 64 \
   --learning_rate 0.0014 \
   --optimizer AdamW \

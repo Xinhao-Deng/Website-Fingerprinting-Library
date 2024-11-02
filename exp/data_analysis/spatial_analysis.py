@@ -23,9 +23,6 @@ parser.add_argument("--dataset", type=str, required=True, default="Undefended", 
 parser.add_argument("--model", type=str, required=True, default="DF", help="Model name")
 parser.add_argument("--device", type=str, default="cpu", help="Device to use, options=[cpu, cuda, cuda:x]")
 
-parser.add_argument("--max_num_tabs", type=int, default=1, 
-                    help="Maximum number of tabs opened by users while browsing")
-
 # Input parameters
 parser.add_argument("--valid_file", type=str, default="valid", help="Validation file name")
 parser.add_argument("--feature", type=str, default="DIR", help="Feature type, options=[DIR, DT, DT2, TAM, TAF]")
@@ -74,7 +71,7 @@ print(f"num_classes: {num_classes}")
 valid_iter = data_processor.load_iter(valid_X, valid_y, args.batch_size, False, args.num_workers)
 
 # Initialize the model
-model = eval(f"models.{args.model}")(num_classes, args.max_num_tabs)
+model = eval(f"models.{args.model}")(num_classes)
 model.load_state_dict(torch.load(os.path.join(ckp_path, f"{args.save_name}.pth"), map_location="cpu"))
 model.to(device)
 
