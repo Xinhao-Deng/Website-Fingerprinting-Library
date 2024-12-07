@@ -1,7 +1,7 @@
-dataset=NCDrift_sup
+pretrain_dataset=NCDrift_sup
 
 python -u exp/pretrain.py \
-  --dataset ${dataset} \
+  --dataset ${pretrain_dataset} \
   --model NetCLR \
   --device cuda:6 \
   --train_epochs 100 \
@@ -24,7 +24,7 @@ python -u exp/train.py \
   --optimizer Adam \
   --eval_metrics Accuracy Precision Recall F1-score \
   --save_metric Accuracy \
-  --load_file checkpoints/NCDrift_sup/NetCLR/pretrain.pth \
+  --load_file checkpoints/${pretrain_dataset}/NetCLR/pretrain.pth \
   --save_name max_f1
 
 python -u exp/test.py \
