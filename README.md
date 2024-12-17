@@ -140,7 +140,8 @@ The meanings of all parameters can be found in the `exp/train.py` and `exp/test.
 If you have any questions or suggestions, feel free to contact:
 
 - [Xinhao Deng](https://xinhao-deng.github.io/) (dengxh23@mails.tsinghua.edu.cn)
+- Yixiang Zhang (zhangyix24@mails.tsinghua.edu.cn)
 
 ## Acknowledgements
 
-We would like to thank all the authors of the referenced papers. Special thanks to **Yixiang Zhang** for his support.
+We would like to thank all the authors of the referenced papers.
